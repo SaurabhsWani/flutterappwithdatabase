@@ -19,6 +19,7 @@ var fs = FirebaseFirestore.instance;
 class _MyAppState extends State<MyApp> {
   String name;
   String cmd;
+  var outputdata;
 
   usrinfoget() async {
     var usrget = await fs.collection('usr_info').get();
@@ -42,9 +43,12 @@ class _MyAppState extends State<MyApp> {
 
   Future web(name, cmd) async {
     var url =
-        "https://c18f2aebcb73.ngrok.io/cgi-bin/ssw.py?name=$name&cmd=$cmd";
+        "https://16c1b4d26978.ngrok.io/cgi-bin/ssw.py?name=$name&cmd=$cmd";
     var response = await http.get(url);
     var otpt = response.body;
+    setState(() {
+      outputdata = response.body;
+    });
     print("Output For Your $cmd command is :" + response.body);
     savetodb(name, otpt, cmd);
   }
@@ -58,47 +62,56 @@ class _MyAppState extends State<MyApp> {
           title: Text('Task-3'),
         ),
         body: Center(
-          child: Container(
-            width: 300,
-            height: 300,
-            color: Colors.lightBlue[100],
-            child: Column(
-              children: <Widget>[
-                TextField(
-                  onChanged: (val) {
-                    name = val;
-                  },
-                  autocorrect: false,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Enter your name",
-                    prefixIcon: Icon(Icons.person),
+          child: Column(
+            children: <Widget>[
+              TextField(
+                onChanged: (val) {
+                  name = val;
+                },
+                autocorrect: false,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Enter your name",
+                  prefixIcon: Icon(Icons.person),
+                ),
+              ),
+              TextField(
+                onChanged: (value) {
+                  cmd = value;
+                },
+                autocorrect: false,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Enter your Command",
+                  prefixIcon: Icon(Icons.check_circle),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  web(name, cmd);
+                },
+                hoverColor: Colors.lightGreenAccent[200],
+                color: Colors.green[400],
+                child: Text('Run your Commmand'),
+              ),
+              Container(
+                width: 400,
+                height: 300,
+                color: Colors.grey,
+                child: Center(
+                    child: Text(
+                  outputdata ?? "output is coming ..",
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    decorationStyle: TextDecorationStyle.dashed,
                   ),
-                ),
-                TextField(
-                  onChanged: (value) {
-                    cmd = value;
-                  },
-                  autocorrect: false,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Enter your Command",
-                    prefixIcon: Icon(Icons.check_circle),
-                  ),
-                ),
-                // Text(usrgetoutput ?? "output is coming .."),
-                FlatButton(
-                  onPressed: () {
-                    web(name, cmd);
-                  },
-                  hoverColor: Colors.lightGreenAccent[200],
-                  color: Colors.green[400],
-                  child: Text('Run your Commmand'),
-                ),
-              ],
-            ),
+                )),
+              )
+            ],
           ),
         ),
       ),
